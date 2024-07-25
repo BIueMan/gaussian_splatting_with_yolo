@@ -1,13 +1,56 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from plyfile import PlyData, PlyElement
-from utils.sh_utils import SH2RGB
+# from utils.sh_utils import SH2RGB
+import tkinter as tk
+from tkinter import messagebox
+
+def SH2RGB(sh):
+    C0 = 0.28209479177387814
+    return sh * C0 + 0.5
+
+def get_bounds(array_length):
+    bounds = {"lower": None, "upper": None}  # Dictionary to store bounds
+
+    def on_submit():
+        try:
+            lower_bound = int(lower_entry.get())
+            upper_bound = int(upper_entry.get())
+
+            if 0 <= lower_bound < upper_bound <= array_length:
+                bounds["lower"] = lower_bound
+                bounds["upper"] = upper_bound
+                window.quit()
+            else:
+                messagebox.showerror("Invalid Bounds", "Please ensure 0 <= lower < upper <= array length.")
+        except ValueError:
+            messagebox.showerror("Invalid Input", "Please enter valid integers for the bounds.")
+
+    window = tk.Tk()
+    window.title("Update Bounds")
+
+    tk.Label(window, text=f"Enter bounds within array length {array_length}, thouse element will be removed:").pack()
+
+    tk.Label(window, text="Lower Bound:").pack()
+    lower_entry = tk.Entry(window)
+    lower_entry.pack()
+
+    tk.Label(window, text="Upper Bound:").pack()
+    upper_entry = tk.Entry(window)
+    upper_entry.pack()
+
+    submit_button = tk.Button(window, text="Submit", command=on_submit)
+    submit_button.pack()
+
+    window.mainloop()
+
+    return bounds["lower"], bounds["upper"]
 
 def get_sort_idx_base_on_color_bright(gs_path:str)->np.ndarray:
     plydata = PlyData.read(gs_path)
 
     lenght = np.asarray(plydata.elements[0]["x"]).shape[0]
-    features_dc = np.zeros(lenght, 3, 1)
+    features_dc = np.zeros([lenght, 3, 1])
     features_dc[:, 0, 0] = np.asarray(plydata.elements[0]["f_dc_0"])
     features_dc[:, 1, 0] = np.asarray(plydata.elements[0]["f_dc_1"])
     features_dc[:, 2, 0] = np.asarray(plydata.elements[0]["f_dc_2"])
@@ -85,5 +128,6 @@ def remove_idx_from_ply_file(gs_path:str, sorted_indices:np.ndarray, start_indic
 if __name__ == "__main__":
     gs_path = 'output\plant_2\point_cloud\iteration_30000\point_cloud.ply'
     sorted_indices = get_sort_idx_base_on_color_bright(gs_path)
+    start, stop = get_bounds(len(sorted_indices))
     save_gs_path = "output/point_cloud_clean.ply"
-    remove_idx_from_ply_file(gs_path, sorted_indices, 0, 4000, save_gs_path)
+    remove_idx_from_ply_file(gs_path, sorted_indices, start, stop, save_gs_path)

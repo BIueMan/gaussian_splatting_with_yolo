@@ -24,6 +24,7 @@ def colorize_matrix(matrix):
     return image
 
 def create_mask(input_video_oath:str, selected_object_idx:int):
+    selected_object_idx -= 1
     dir_to_create = ['output', 'output/yolo', 'output/yolo/images']
     for dir in dir_to_create:
         os.makedirs(dir, exist_ok=True)
@@ -147,4 +148,5 @@ def save_small_image(seg_box_path:str, mask_path:str, images_dir_path:str):
             cv2.imwrite(f'output/yolo/small/00{idx+1}.png', image_list_small_all[idx])
             
 if __name__ == "__main__":
-    create_mask('data/plant.mp4', 0)
+    video_path = 'input_data/videos/plant.mp4'
+    create_mask(video_path, 1)
