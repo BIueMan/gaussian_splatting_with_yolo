@@ -4,7 +4,7 @@ import subprocess
 
 from yolo_extantion import *
 
-def main(video_path, segment_idx):
+def main(video_path, segment_idx, imshow_scale):
     # Define paths
     yolo_dir = 'input_data/yolo_input'
     yolo_input_dir = f'{yolo_dir}/input'
@@ -16,7 +16,7 @@ def main(video_path, segment_idx):
 
     # Check if the input is a video or a directory
     if video_path.endswith('.mp4'):
-        create_mask(video_path, segment_idx)
+        create_mask(video_path, segment_idx, imshow_scale)
         # Copy the directory
         shutil.copytree(yolo_images_dir, yolo_input_dir)
     elif os.path.isdir(video_path):
@@ -52,15 +52,18 @@ def main(video_path, segment_idx):
 
     gs_path = point_cloud_path
     sorted_indices = get_sort_idx_base_on_color_bright(gs_path)
+    start, stop = get_bounds(len(sorted_indices))
+
     new_dir_path = os.path.join('output', new_dir, 'point_cloud', 'clean_gs')
     os.makedirs(new_dir_path, exist_ok=True)
     save_gs_path = os.path.join(new_dir_path, 'point_cloud_clean.ply')
-    remove_idx_from_ply_file(gs_path, sorted_indices, 0, 4000, save_gs_path)
+    remove_idx_from_ply_file(gs_path, sorted_indices, start, stop, save_gs_path)
 
     print(f"Task completed. File is saved at {save_gs_path}")
 
 # Example usage
 if __name__ == '__main__':
-    video_path = 'input_data/videos/plant.mp4'
+    video_path = 'input_data/videos/car3.mp4'
     segment_idx = 1
-    main(video_path, segment_idx)
+    imshow_scale = 3
+    main(video_path, segment_idx, imshow_scale)

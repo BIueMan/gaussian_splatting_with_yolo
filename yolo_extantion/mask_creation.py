@@ -23,7 +23,15 @@ def colorize_matrix(matrix):
     
     return image
 
-def create_mask(input_video_oath:str, selected_object_idx:int):
+def create_mask(input_video_oath:str, selected_object_idx:int, imshow_scale:float):
+    # check for video size
+    cap_tmp = cv2.VideoCapture(input_video_oath)
+    _, frame_tnmp = cap_tmp.read()
+    video_shape = np.flip(frame_tnmp.shape[:2])
+    video_shape[0] = 2*video_shape[0]
+    cap_tmp.release()
+
+    # check dir are existing
     selected_object_idx -= 1
     dir_to_create = ['output', 'output/yolo', 'output/yolo/images']
     for dir in dir_to_create:
@@ -32,7 +40,7 @@ def create_mask(input_video_oath:str, selected_object_idx:int):
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     fps = 30.0
     output_file = f'{dir_to_create[1]}/plant_plus_mask.mp4'
-    out = cv2.VideoWriter(output_file, fourcc, fps, (2160, 1920)) # TODO: change size base on the twice the vidio input
+    out = cv2.VideoWriter(output_file, fourcc, fps, video_shape)
     # added text to video
     font = cv2.FONT_HERSHEY_SIMPLEX
     font_scale = 1
@@ -84,7 +92,7 @@ def create_mask(input_video_oath:str, selected_object_idx:int):
         combined_image = cv2.hconcat([frame_, mask_reshape])
         cv2.putText(combined_image, object_name, [frame_.shape[0], 50], font, font_scale, font_color, thickness, line_type)
 
-        cv2.imshow('frame', cv2.resize(combined_image, [640, 480]))
+        cv2.imshow('frame', cv2.resize(combined_image, (np.flip(combined_image.shape[:2])/imshow_scale).astype(int)))
         out.write(np.clip(combined_image, 0, 255).astype(np.uint8))
         
         # save every sec (when campter_frame == true)
@@ -148,5 +156,5 @@ def save_small_image(seg_box_path:str, mask_path:str, images_dir_path:str):
             cv2.imwrite(f'output/yolo/small/00{idx+1}.png', image_list_small_all[idx])
             
 if __name__ == "__main__":
-    video_path = 'input_data/videos/plant.mp4'
-    create_mask(video_path, 1)
+    video_path = 'input_data/videos/car1.mp4'
+    create_mask(video_path, 1, 3)

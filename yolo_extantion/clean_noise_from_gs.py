@@ -126,8 +126,8 @@ def remove_idx_from_ply_file(gs_path:str, sorted_indices:np.ndarray, start_indic
     print("Cleaned point cloud saved to point_cloud_clean.ply")
     
 if __name__ == "__main__":
-    gs_path = 'output\plant_2\point_cloud\iteration_30000\point_cloud.ply'
+    gs_path = 'output\car1\point_cloud\iteration_30000\point_cloud.ply'
     sorted_indices = get_sort_idx_base_on_color_bright(gs_path)
     start, stop = get_bounds(len(sorted_indices))
-    save_gs_path = "output/point_cloud_clean.ply"
+    save_gs_path = "output\car1\point_cloud\point_cloud_clean.ply"
     remove_idx_from_ply_file(gs_path, sorted_indices, start, stop, save_gs_path)
